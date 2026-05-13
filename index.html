@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>クマ取り再生注射 LP スクリプト</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #f0883e;
+    --accent2: #da3633;
+    --pink: #f78166;
+    --green: #3fb950;
+    --blue: #58a6ff;
+    --purple: #bc8cff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0 0 80px;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .header h1 { font-size: 1.5em; margin-bottom: 12px; }
+  .header .meta {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  }
+  .header .meta span {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.8em;
+    color: var(--text-muted);
+  }
+  .container { max-width: 800px; margin: 0 auto; padding: 0 16px; }
+
+  /* Navigation */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,17,23,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.75em;
+    padding: 4px 10px;
+    border-radius: 12px;
+    transition: all 0.2s;
+  }
+  .nav a:hover { color: var(--text); background: var(--surface); }
+
+  /* Section */
+  .section {
+    margin-top: 40px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-header .badge {
+    font-size: 0.7em;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .badge-fv { background: var(--accent); color: #000; }
+  .badge-q { background: var(--blue); color: #000; }
+  .badge-result { background: var(--green); color: #000; }
+  .badge-more { background: var(--purple); color: #000; }
+  .badge-cta { background: var(--accent2); color: #fff; }
+  .section-header h2 { font-size: 1.1em; }
+  .section-body { padding: 20px; background: var(--surface); }
+
+  /* Copy block */
+  .copy-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0;
+    white-space: pre-line;
+    font-size: 0.95em;
+    line-height: 1.8;
+  }
+
+  /* Card table */
+  .card-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  .card-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 0.8em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .card-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9em;
+  }
+  .card-table tr:last-child td { border-bottom: none; }
+  .card-front { color: var(--text-muted); }
+  .card-back { color: var(--pink); font-weight: 500; }
+
+  /* Image direction */
+  .img-direction {
+    background: rgba(240,136,62,0.1);
+    border-left: 3px solid var(--accent);
+    padding: 10px 16px;
+    margin: 12px 0;
+    font-size: 0.85em;
+    border-radius: 0 6px 6px 0;
+  }
+  .img-direction::before {
+    content: "📸 ";
+  }
+
+  /* Note */
+  .note {
+    background: rgba(88,166,255,0.08);
+    border-left: 3px solid var(--blue);
+    padding: 10px 16px;
+    margin: 12px 0;
+    font-size: 0.85em;
+    color: var(--text-muted);
+    border-radius: 0 6px 6px 0;
+  }
+
+  /* Divider */
+  .divider {
+    text-align: center;
+    margin: 40px 0;
+    color: var(--text-muted);
+    font-size: 0.85em;
+    position: relative;
+  }
+  .divider::before, .divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: var(--border);
+  }
+  .divider::before { left: 0; }
+  .divider::after { right: 0; }
+
+  /* Image order summary */
+  .order-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  .order-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 0.8em;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+    background: var(--bg);
+  }
+  .order-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85em;
+  }
+  .order-table .q-label { color: var(--blue); font-weight: 600; }
+  .total-row { font-weight: 700; color: var(--accent); }
+
+  /* CTA highlight */
+  .cta-block {
+    background: linear-gradient(135deg, rgba(218,54,51,0.15), rgba(240,136,62,0.15));
+    border: 1px solid var(--accent2);
+    border-radius: 8px;
+    padding: 16px 20px;
+    text-align: center;
+    margin: 12px 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header h1 { font-size: 1.2em; }
+    .section-body { padding: 14px; }
+    .copy-block { padding: 12px; font-size: 0.9em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>クマ取り再生注射 LP スクリプト</h1>
+  <p style="color:var(--text-muted); font-size:0.85em; margin-bottom:12px;">カードフリップ型アンケートLP</p>
+  <div class="meta">
+    <span>商材: TCB クマ取り再生注射</span>
+    <span>ターゲット: 35歳以上女性</span>
+    <span>転用元: 二重女性LP</span>
+    <span>構造: FV → Q1〜Q4 → CTA① → 教育 → CTA②③</span>
+  </div>
+</div>
+
+<nav class="nav">
+  <a href="#fv">FV</a>
+  <a href="#q1">Q1</a>
+  <a href="#q2">Q2</a>
+  <a href="#q3">Q3</a>
+  <a href="#q4">Q4</a>
+  <a href="#result">結果</a>
+  <a href="#more">続きを見る▼</a>
+  <a href="#order">画像発注リスト</a>
+</nav>
+
+<div class="container">
+
+<!-- FV -->
+<div class="section" id="fv">
+  <div class="section-header">
+    <span class="badge badge-fv">FV</span>
+    <h2>ファーストビュー</h2>
+  </div>
+  <div class="section-body">
+    <div class="copy-block">朝、鏡を見るたびに
+目の下のクマに
+ため息をついていませんか？
+
+コンシーラーで隠しても
+夕方には浮き出てくる——
+
+そんな毎日、
+もう終わりにしませんか？
+
+＼ たった4問に答えるだけ ／
+
+あなたの目元のお悩みに合った
+クマ取りプランを診断 🔍
+
+※ 最後にお得なクーポンもプレゼント 🎁</div>
+    <div class="img-direction">クマあり→なしのBAカルーセル（3〜4パターン、35歳以上の症例）+ ギフトアイコン</div>
+  </div>
+</div>
+
+<!-- Q1 -->
+<div class="section" id="q1">
+  <div class="section-header">
+    <span class="badge badge-q">Q1</span>
+    <h2>「一番気になるクマの悩みはどれですか？」</h2>
+  </div>
+  <div class="section-body">
+    <table class="card-table">
+      <tr><th>#</th><th>カード表</th><th>カード裏</th></tr>
+      <tr><td>1</td><td class="card-front">目の下の青黒いクマ</td><td class="card-back">血色感のある明るい目元へ</td></tr>
+      <tr><td>2</td><td class="card-front">目の下のたるみ・影</td><td class="card-back">ハリのあるスッキリした目元へ</td></tr>
+      <tr><td>3</td><td class="card-front">目の下のくすみ・茶色み</td><td class="card-back">トーンアップした若々しい目元へ</td></tr>
+    </table>
+    <div class="img-direction"><strong>表:</strong> 各クマタイプで暗い目元の女性（悩み顔・グレー系背景）<br><strong>裏:</strong> 明るい目元の女性（笑顔・ピンク系背景）</div>
+    <div class="note">💡 二重LPの「瞼のたるみ / 目の左右差 / 二重ラインがない」に対応。タップで悩み→解決イメージに切り替わる。</div>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="section" id="q2">
+  <div class="section-header">
+    <span class="badge badge-q">Q2</span>
+    <h2>「クマ対策、今どうしていますか？」</h2>
+  </div>
+  <div class="section-body">
+    <table class="card-table">
+      <tr><th>#</th><th>カード表</th><th>カード裏</th></tr>
+      <tr><td>1</td><td class="card-front">コンシーラーで隠している</td><td class="card-back">その厚塗り、もっとラクになれるかも</td></tr>
+      <tr><td>2</td><td class="card-front">アイクリーム・美容液を使っている</td><td class="card-back">そのケア、もっと効果を実感できるかも</td></tr>
+      <tr><td>3</td><td class="card-front">特に何もしていない</td><td class="card-back">今が一番キレイな目元を取り戻しやすいタイミングかも</td></tr>
+    </table>
+    <div class="img-direction"><strong>表:</strong> 各対処法をしている女性（グレー系背景・困り顔）<br><strong>裏:</strong> 笑顔の女性（ピンク系背景）</div>
+    <div class="note">💡 二重LPの「アイプチ / メイクでカバー / 特に何もしていない」に対応。裏は否定せず「もっと〜かも」のトーン。</div>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="section" id="q3">
+  <div class="section-header">
+    <span class="badge badge-q">Q3</span>
+    <h2>「クマ取り治療で一番気になることは？」</h2>
+  </div>
+  <div class="section-body">
+    <table class="card-table">
+      <tr><th>#</th><th>カード表</th><th>カード裏</th></tr>
+      <tr><td>1</td><td class="card-front">痛みがないか心配</td><td class="card-back">極細針＋表面麻酔で痛みほぼゼロ</td></tr>
+      <tr><td>2</td><td class="card-front">ダウンタイムが心配</td><td class="card-back">切らない注射だから腫れ・傷ほぼなし</td></tr>
+      <tr><td>3</td><td class="card-front">本当に効果があるか心配</td><td class="card-back">4種の有効成分で全タイプのクマに対応</td></tr>
+    </table>
+    <div class="img-direction">
+      <strong>表:</strong><br>
+      ① 胸に手を当てて不安げな女性<br>
+      ② サングラスをかけている女性（DT隠すイメージ）<br>
+      ③ 顔を覆って不安な女性<br><br>
+      <strong>裏:</strong><br>
+      ① 祈るポーズで安堵の女性（ピンク背景）<br>
+      ② メイクしている女性 = すぐメイクOK（ピンク背景）<br>
+      ③ ドクター風女性がOKサイン（ピンク背景）
+    </div>
+    <div class="note">💡 二重LPの「痛み / 傷跡 / 不自然さ」に対応。裏で具体的な仕組みを提示。</div>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="section" id="q4">
+  <div class="section-header">
+    <span class="badge badge-q">Q4</span>
+    <h2>「クマがなくなったら、一番嬉しいことは？」</h2>
+  </div>
+  <div class="section-body">
+    <table class="card-table">
+      <tr><th>#</th><th>カード表</th><th>カード裏</th></tr>
+      <tr><td>1</td><td class="card-front">朝のメイクを楽にしたい</td><td class="card-back">隠すメイクから"楽しむ"メイクへ ✨</td></tr>
+      <tr><td>2</td><td class="card-front">若々しい印象を取り戻したい</td><td class="card-back">目元が変わるだけで印象がパッと明るく ✨</td></tr>
+      <tr><td>3</td><td class="card-front">自分の顔に自信を持ちたい</td><td class="card-back">鏡を見るたびに笑顔になれる毎日へ ✨</td></tr>
+    </table>
+    <div class="img-direction">
+      <strong>表:</strong><br>
+      ① 楽しそうにメイク道具を持つ女性<br>
+      ② 鏡に向かって微笑む女性<br>
+      ③ 花を添えたような華やかなポーズの女性<br><br>
+      <strong>裏:</strong> 白衣の女性ドクター（ピンク背景）がサムズアップ＋✨
+    </div>
+    <div class="note">💡 二重LPの「メイク楽 / アイプチ卒業 / 印象に自信」に対応。裏は✨付き＋ドクター登場で「実現できますよ」の肯定。</div>
+  </div>
+</div>
+
+<!-- 結果 -->
+<div class="section" id="result">
+  <div class="section-header">
+    <span class="badge badge-result">結果</span>
+    <h2>結果ページ（クーポン提示 → CTA①）</h2>
+  </div>
+  <div class="section-body">
+    <div class="copy-block">アンケートの回答
+ありがとうございました！
+
+¥25,000OFFクーポンを
+お受け取りください
+
+※画像はイメージです※個人差があります
+※1円以上の契約で割引適用※初回来院限定クーポン適用価格</div>
+    <div class="img-direction">
+      BA動画（クマ取りビフォーアフター）<br>
+      クーポン画像（光るエフェクト付き）<br>
+      申し込み方法の動画（LINE予約の流れ）
+    </div>
+    <div class="cta-block">
+      <strong>CTA① :</strong> 無料カウンセリング枠を確認する
+    </div>
+  </div>
+</div>
+
+<!-- 続きを見る -->
+<div class="divider" id="more">▼ 続きを見る ▼</div>
+
+<!-- ❶ -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-more">❶</span>
+    <h2>共感の再燃</h2>
+  </div>
+  <div class="section-body">
+    <div class="copy-block">クマひとつでこんなに大変…</div>
+    <table class="card-table">
+      <tr><th>#</th><th>ペイン</th><th>コピー</th></tr>
+      <tr><td>1</td><td>他人からの指摘</td><td>元気なのに「疲れてる？」と心配される</td></tr>
+      <tr><td>2</td><td>メイクの限界</td><td>コンシーラーで隠しても夕方にはバレる</td></tr>
+      <tr><td>3</td><td>老け見え</td><td>鏡を見るたびに老けたなと感じる</td></tr>
+    </table>
+    <div class="copy-block">そんなあなたにおすすめなのが…</div>
+    <div class="img-direction">各ペインのシーンを描いた女性イラスト×3</div>
+  </div>
+</div>
+
+<!-- ❷ -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-more">❷</span>
+    <h2>解決策の提示</h2>
+  </div>
+  <div class="section-body">
+    <div class="copy-block">TCBの
+クマ取り再生注射
+
+TCBのクマ取り再生注射なら
+最短20分で目元が明るく!? ✨</div>
+    <div class="img-direction">TCBロゴ</div>
+  </div>
+</div>
+
+<!-- ❸ -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-more">❸</span>
+    <h2>悩み別BA</h2>
+  </div>
+  <div class="section-body">
+    <table class="card-table">
+      <tr><th>悩み（Q1対応）</th><th>BA内容</th></tr>
+      <tr><td>青黒いクマ</td><td>施術前→後</td></tr>
+      <tr><td>たるみ・影</td><td>施術前→後</td></tr>
+      <tr><td>くすみ・茶色み</td><td>施術前→後</td></tr>
+    </table>
+    <div class="copy-block">切らないクマ取り注射で目元に明るさ ♪</div>
+    <div class="img-direction">悩みタイプ別BA写真×3（小サイズ横並び）</div>
+  </div>
+</div>
+
+<!-- ❹ -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-more">❹</span>
+    <h2>選ばれる理由×4</h2>
+  </div>
+  <div class="section-body">
+    <div class="copy-block">TCBが選ばれる理由</div>
+    <table class="card-table">
+      <tr><th>#</th><th>見出し</th><th>説明文</th></tr>
+      <tr><td>1</td><td><strong>痛み・DTほぼなし</strong></td><td>切開なし。極細針と表面麻酔で最短20分完了。麻酔も複数ご用意</td></tr>
+      <tr><td>2</td><td><strong>全タイプのクマに対応</strong></td><td>4種の有効成分を凝縮した再生注射で、青・茶・黒クマすべてにアプローチ</td></tr>
+      <tr><td>3</td><td><strong>追加料金一切ナシ</strong></td><td>カウンセリングでご同意いただいた金額以外、一切いただきません</td></tr>
+      <tr><td>4</td><td><strong>安心のアフターケア</strong></td><td>施術後の経過もしっかりサポート。いつでもご相談可能</td></tr>
+    </table>
+    <div class="img-direction">各理由にアイコンまたはイラスト</div>
+  </div>
+</div>
+
+<!-- ❺ -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-more">❺</span>
+    <h2>社会的証明</h2>
+  </div>
+  <div class="section-body">
+    <div class="copy-block">だからこそ！
+TCBは多くの方に選ばれ
+ご好評いただいています</div>
+    <table class="card-table">
+      <tr><th>数字</th><th>内容</th></tr>
+      <tr><td><strong>96万人以上</strong></td><td>年間来院者数</td></tr>
+      <tr><td><strong>91%</strong></td><td>仕上がり満足度</td></tr>
+      <tr><td><strong>96.7%</strong></td><td>リピート希望率</td></tr>
+      <tr><td><strong>100院以上</strong></td><td>全国クリニック数</td></tr>
+    </table>
+    <div class="img-direction">数字バッジ / アイコン付きレイアウト</div>
+  </div>
+</div>
+
+<!-- ❻ -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-more">❻</span>
+    <h2>申し込み手順</h2>
+  </div>
+  <div class="section-body">
+    <div class="copy-block">クーポン予約は簡単30秒
+
+① ページ下のボタンをタップ
+② ご希望の店舗・来院日を選択
+③ お名前と電話番号を入力</div>
+    <div class="img-direction">スマホスクショ付きステップ図解</div>
+    <div class="cta-block">
+      <strong>CTA② :</strong> 無料カウンセリング枠を確認する
+    </div>
+  </div>
+</div>
+
+<!-- ❼ -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-more">❼</span>
+    <h2>FAQ×3</h2>
+  </div>
+  <div class="section-body">
+    <table class="card-table">
+      <tr><th>Q</th><th>A</th></tr>
+      <tr><td>痛みはありますか？</td><td>極細の針と表面麻酔を使用するため、ほとんど痛みを感じません。施術時間も最短20分で完了します。</td></tr>
+      <tr><td>追加料金はありますか？</td><td>いいえ。合意のない追加料金は一切ないのでご安心ください。</td></tr>
+      <tr><td>相談だけでもOKですか？</td><td>もちろんOKです。まずはお気軽に無料カウンセリングへお越しください。</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ❽ -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-more">❽</span>
+    <h2>当日の流れ</h2>
+  </div>
+  <div class="section-body">
+    <table class="card-table">
+      <tr><th>ステップ</th><th>内容</th><th>補足</th></tr>
+      <tr><td>① 受付</td><td>ご来院・受付</td><td>優しいスタッフがお出迎え</td></tr>
+      <tr><td>② カウンセリング</td><td>医師がクマの状態を診断</td><td>無料で何でも相談OK</td></tr>
+      <tr><td>③ 施術</td><td>クマ取り再生注射（最短20分）</td><td>痛みほぼなし・切らない</td></tr>
+      <tr><td>④ 帰宅</td><td>そのままお出かけOK</td><td>メイクもすぐ可能</td></tr>
+    </table>
+    <div class="img-direction">各ステップの写真 or イラスト（クリニックの温かい雰囲気）</div>
+  </div>
+</div>
+
+<!-- ❾ -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-more">❾</span>
+    <h2>感情クライマックス</h2>
+  </div>
+  <div class="section-body">
+    <div class="copy-block">もうクマに悩まない毎日へ！
+
+コンシーラーに頼らなくても
+明るい目元で過ごせる
+
+「最近キレイになったね」
+って言われちゃうかも ✨</div>
+    <div class="img-direction">クマなし笑顔の女性（BA動画 or イラスト）</div>
+  </div>
+</div>
+
+<!-- CTA③ -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-cta">CTA③</span>
+    <h2>最終CTA</h2>
+  </div>
+  <div class="section-body">
+    <div class="cta-block">
+      🕑 たった30秒で予約完了！🕑<br><br>
+      <strong>0円〜</strong> でクマ取り治療ができる<br>
+      この機会をお見逃しなく<br><br>
+      <strong>▶ 無料カウンセリング枠を確認する</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ❿ -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-cta">❿</span>
+    <h2>緊急性</h2>
+  </div>
+  <div class="section-body">
+    <div class="copy-block">⚠ ご注意ください ⚠
+
+このページを閉じてしまうと
+2度と表示されなくなるかもしれません
+
+今すぐ無料カウンセリングで
+あなたに合ったプランを確認してみてください</div>
+  </div>
+</div>
+
+<!-- 画像発注リスト -->
+<div class="section" id="order" style="margin-top:60px;">
+  <div class="section-header" style="background:var(--bg);">
+    <span class="badge badge-fv">📸</span>
+    <h2>画像発注リスト</h2>
+  </div>
+  <div class="section-body">
+    <h3 style="margin-bottom:12px; font-size:1em;">カードイラスト（24枚: 4Q × 3選択肢 × 表裏）</h3>
+    <table class="order-table">
+      <tr><th>Q</th><th>#</th><th>表イラスト</th><th>裏イラスト</th></tr>
+      <tr><td class="q-label">Q1</td><td>1</td><td>青クマで暗い目元の女性</td><td>明るい血色の目元の女性（ピンク背景）</td></tr>
+      <tr><td class="q-label">Q1</td><td>2</td><td>たるみ影のある目元の女性</td><td>ハリのある目元の女性（ピンク背景）</td></tr>
+      <tr><td class="q-label">Q1</td><td>3</td><td>くすんだ目元の女性</td><td>透明感のある目元の女性（ピンク背景）</td></tr>
+      <tr><td class="q-label">Q2</td><td>1</td><td>コンシーラーを塗る女性</td><td>笑顔の女性（ピンク背景）</td></tr>
+      <tr><td class="q-label">Q2</td><td>2</td><td>スキンケア中の女性</td><td>満足げな女性（ピンク背景）</td></tr>
+      <tr><td class="q-label">Q2</td><td>3</td><td>困り顔の女性</td><td>明るい表情の女性（ピンク背景）</td></tr>
+      <tr><td class="q-label">Q3</td><td>1</td><td>胸に手を当てて不安げな女性</td><td>祈るポーズで安堵の女性（ピンク背景）</td></tr>
+      <tr><td class="q-label">Q3</td><td>2</td><td>サングラスの女性</td><td>メイクしている女性（ピンク背景）</td></tr>
+      <tr><td class="q-label">Q3</td><td>3</td><td>顔を覆って不安な女性</td><td>ドクター風女性がOKサイン（ピンク背景）</td></tr>
+      <tr><td class="q-label">Q4</td><td>1</td><td>メイク道具を持つ女性</td><td>ドクター風女性サムズアップ+✨（ピンク背景）</td></tr>
+      <tr><td class="q-label">Q4</td><td>2</td><td>鏡に向かう女性</td><td>ドクター風女性サムズアップ+✨（ピンク背景）</td></tr>
+      <tr><td class="q-label">Q4</td><td>3</td><td>華やかなポーズの女性</td><td>ドクター風女性サムズアップ+✨（ピンク背景）</td></tr>
+    </table>
+
+    <h3 style="margin:24px 0 12px; font-size:1em;">その他素材</h3>
+    <table class="order-table">
+      <tr><th>種別</th><th>内容</th><th>数</th></tr>
+      <tr><td>BA写真</td><td>FV用カルーセル（35歳以上症例）</td><td>3〜4枚</td></tr>
+      <tr><td>BA写真</td><td>❸悩み別BA（青クマ/たるみ/くすみ）</td><td>3枚</td></tr>
+      <tr><td>BA動画</td><td>結果ページ用</td><td>1本</td></tr>
+      <tr><td>動画</td><td>申し込み方法（LINE予約の流れ）</td><td>1本</td></tr>
+      <tr><td>クーポン画像</td><td>光るエフェクト付き</td><td>1枚</td></tr>
+      <tr><td>❶イラスト</td><td>日常ペイン×3（疲れてる?/メイク崩れ/鏡で老け見え）</td><td>3枚</td></tr>
+      <tr><td>❹アイコン</td><td>選ばれる理由×4</td><td>4個</td></tr>
+      <tr><td>❺数字バッジ</td><td>社会的証明×4</td><td>4個</td></tr>
+      <tr><td>❻スクショ</td><td>申し込みステップ図解</td><td>1枚</td></tr>
+      <tr><td>❽写真/イラスト</td><td>当日の流れ×4ステップ</td><td>4枚</td></tr>
+      <tr><td>❾素材</td><td>笑顔の女性（BA or イラスト）</td><td>1枚</td></tr>
+    </table>
+
+    <p class="total-row" style="margin-top:16px; text-align:right;">合計: イラスト24枚 + BA 7〜8枚 + 動画2本 + その他13点</p>
+  </div>
+</div>
+
+</div>
+
+<div style="text-align:center; margin-top:60px; color:var(--text-muted); font-size:0.75em;">
+  Last updated: 2026-05-13
+</div>
+
+</body>
+</html>
