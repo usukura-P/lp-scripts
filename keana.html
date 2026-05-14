@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>毛穴治療 LP スクリプト（フリップカード型）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #f0883e;
+    --accent2: #da3633;
+    --pink: #f78166;
+    --green: #3fb950;
+    --blue: #58a6ff;
+    --purple: #bc8cff;
+    --teal: #39d2c0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0 0 80px;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e, #0f3460);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .header h1 { font-size: 1.5em; margin-bottom: 12px; }
+  .header .meta {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  }
+  .header .meta span {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.8em;
+    color: var(--text-muted);
+  }
+  .container { max-width: 800px; margin: 0 auto; padding: 0 16px; }
+
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,17,23,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.75em;
+    padding: 4px 10px;
+    border-radius: 12px;
+    transition: all 0.2s;
+  }
+  .nav a:hover { color: var(--text); background: var(--surface); }
+
+  .section {
+    margin-top: 40px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-header .badge {
+    font-size: 0.7em;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .badge-orange { background: rgba(240,136,62,0.2); color: var(--accent); }
+  .badge-green { background: rgba(63,185,80,0.2); color: var(--green); }
+  .badge-blue { background: rgba(88,166,255,0.2); color: var(--blue); }
+  .badge-purple { background: rgba(188,140,255,0.2); color: var(--purple); }
+  .badge-pink { background: rgba(247,129,102,0.2); color: var(--pink); }
+  .badge-red { background: rgba(218,54,51,0.2); color: var(--accent2); }
+  .badge-teal { background: rgba(57,210,192,0.2); color: var(--teal); }
+
+  .section-body { padding: 20px; }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    background: var(--surface);
+  }
+  .card-front {
+    border-left: 3px solid var(--text-muted);
+  }
+  .card-back {
+    border-left: 3px solid var(--pink);
+    background: rgba(247,129,102,0.05);
+  }
+  .card .label {
+    font-size: 0.65em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .card .text {
+    font-size: 0.95em;
+    font-weight: 600;
+  }
+
+  .psych-note {
+    background: rgba(88,166,255,0.08);
+    border: 1px solid rgba(88,166,255,0.2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 0.85em;
+    color: var(--blue);
+  }
+  .psych-note::before { content: "🧠 心理的役割: "; font-weight: 700; }
+
+  .copy-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+    white-space: pre-wrap;
+  }
+  .copy-block .copy-label {
+    font-size: 0.7em;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .img-note {
+    background: rgba(188,140,255,0.08);
+    border: 1px solid rgba(188,140,255,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    font-size: 0.8em;
+    color: var(--purple);
+  }
+  .img-note::before { content: "📸 "; }
+
+  .evidence {
+    background: rgba(63,185,80,0.08);
+    border: 1px solid rgba(63,185,80,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    font-size: 0.8em;
+    color: var(--green);
+  }
+  .evidence::before { content: "📊 根拠: "; font-weight: 700; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.85em;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+  }
+  th { background: var(--surface); color: var(--text-muted); font-size: 0.8em; }
+
+  .cta-block {
+    background: linear-gradient(135deg, rgba(218,54,51,0.15), rgba(240,136,62,0.15));
+    border: 2px solid var(--accent2);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .cta-block h4 { color: var(--accent2); margin-bottom: 8px; }
+
+  .persona-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 12px 0;
+  }
+  .persona-card h4 {
+    color: var(--teal);
+    margin-bottom: 12px;
+    font-size: 0.95em;
+  }
+  .persona-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .persona-card li {
+    padding: 4px 0;
+    font-size: 0.85em;
+    border-bottom: 1px solid var(--border);
+  }
+  .persona-card li:last-child { border-bottom: none; }
+
+  .flow-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin: 12px 0;
+    padding: 12px;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .flow-step .num {
+    background: var(--accent);
+    color: #000;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 0.8em;
+    flex-shrink: 0;
+  }
+
+  .emotion-arc {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    margin: 16px 0;
+    padding: 12px;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 0.75em;
+    text-align: center;
+    overflow-x: auto;
+  }
+  .emotion-arc .step {
+    flex: 1;
+    min-width: 70px;
+    padding: 6px 4px;
+  }
+  .emotion-arc .step .arrow { color: var(--text-muted); }
+
+  .faq-item {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 8px 0;
+    overflow: hidden;
+  }
+  .faq-q {
+    padding: 12px 16px;
+    background: var(--surface);
+    font-weight: 600;
+    font-size: 0.9em;
+  }
+  .faq-q::before { content: "Q. "; color: var(--accent); }
+  .faq-a {
+    padding: 12px 16px;
+    font-size: 0.85em;
+    border-top: 1px solid var(--border);
+  }
+  .faq-a::before { content: "A. "; color: var(--green); font-weight: 700; }
+
+  .home-link {
+    display: inline-block;
+    margin: 10px 0;
+    color: var(--blue);
+    text-decoration: none;
+    font-size: 0.85em;
+  }
+  .home-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="index.html" class="home-link">&larr; クマ取りLPスクリプトへ</a>
+  <h1>毛穴治療 LP スクリプト<br><small style="font-size:0.6em;color:var(--text-muted)">フリップカード型アンケートLP — 心理導線ベース</small></h1>
+  <div class="meta">
+    <span>商材: TCB毛穴治療（複数施術）</span>
+    <span>ターゲット: 30歳以上女性</span>
+    <span>形式: フリップカード×4問</span>
+    <span>横展開元: 二重女性LP</span>
+    <span>作成: 2026-05-14</span>
+  </div>
+</div>
+
+<nav class="nav">
+  <a href="#persona">ペルソナ</a>
+  <a href="#fv">FV</a>
+  <a href="#q1">Q1</a>
+  <a href="#q2">Q2</a>
+  <a href="#q3">Q3</a>
+  <a href="#q4">Q4</a>
+  <a href="#result">結果</a>
+  <a href="#more">続きを見る</a>
+  <a href="#shared1">共感の再燃</a>
+  <a href="#shared2">解決策</a>
+  <a href="#shared3">悩み別BA</a>
+  <a href="#shared4">選ばれる理由</a>
+  <a href="#shared5">社会的証明</a>
+  <a href="#shared6">手順</a>
+  <a href="#faq">FAQ</a>
+  <a href="#flow">当日の流れ</a>
+  <a href="#climax">クライマックス</a>
+  <a href="#urgency">緊急性</a>
+  <a href="#images">画像発注リスト</a>
+</nav>
+
+<div class="container">
+
+<!-- ==================== ペルソナ ==================== -->
+<div class="section" id="persona">
+  <div class="section-header">
+    <span class="badge badge-teal">PERSONA</span>
+    <h3>ターゲットペルソナ</h3>
+  </div>
+  <div class="section-body">
+
+    <div class="persona-card">
+      <h4>基本属性</h4>
+      <ul>
+        <li><strong>年齢:</strong> 30〜49歳（メイン35〜45歳）</li>
+        <li><strong>性別:</strong> 女性</li>
+        <li><strong>悩み歴:</strong> 思春期ニキビ〜大人ニキビ→跡・毛穴として蓄積。10年〜20年以上</li>
+        <li><strong>訴求軸:</strong> 毛穴の開き・黒ずみ・ニキビ跡・クレーター・毛穴落ち</li>
+      </ul>
+    </div>
+
+    <div class="persona-card">
+      <h4>日常のペインシーン（アンケートより）</h4>
+      <ul>
+        <li><strong>#1 メイク時:</strong>「ファンデ塗っても毛穴が埋まらない」「コンシーラーでも隠れない」「厚塗りになる」「午後に毛穴落ち」</li>
+        <li><strong>#2 鏡を見る時:</strong>「すっぴんの自分にガッカリ」「クレーターが目に入る」</li>
+        <li><strong>#3 対人・写真:</strong>「友達と写真撮るとき肌が汚くて悲しい」「初対面で肌を見られたくない」「マスクで隠す」</li>
+      </ul>
+    </div>
+
+    <div class="persona-card">
+      <h4>現在の対策と限界</h4>
+      <ul>
+        <li>コンシーラー・カバー力ファンデで隠す → 厚塗り→毛穴落ちの悪循環</li>
+        <li>ビタミンC美容液・毛穴引き締め化粧水 → ニキビ予防にはなるが跡・クレーターには効かない</li>
+        <li>皮膚科の塗り薬・飲み薬 → 一時的に治るがぶり返す</li>
+        <li>食生活改善（炭水化物・脂質制限）→ ストレスになり持続しない</li>
+        <li>低用量ピル → ニキビには効くが毛穴・跡には効かない</li>
+      </ul>
+    </div>
+
+    <div class="persona-card">
+      <h4>施術への不安TOP3</h4>
+      <ul>
+        <li><strong>1. 費用＋回数:</strong>「高額」「何回も通わないといけない」「トータルでいくらかわからない」「課金が止められなくなるのでは」</li>
+        <li><strong>2. 痛み・ダウンタイム:</strong>「ダーマペンは血だらけ」「赤くなる」「ヒリヒリ」「肌が戻らなかったら」</li>
+        <li><strong>3. 効果への疑い:</strong>「クレーターは治らないのでは」「悪化するケースを聞いた」「元の肌にはなれない諦め」</li>
+      </ul>
+    </div>
+
+    <div class="persona-card">
+      <h4>理想像（アンケートから抽出）</h4>
+      <ul>
+        <li>ナチュラルメイク / すっぴんで外出できる</li>
+        <li>コンシーラーで隠す工程が不要になる</li>
+        <li>自分の肌に自信が持てる / 鏡を見て気分が上がる</li>
+        <li>写真を堂々と撮れる / マスクなしで笑える</li>
+        <li>おしゃれやメイクをもっと楽しめる</li>
+      </ul>
+    </div>
+
+    <div class="persona-card">
+      <h4>ペルソナ代表像: B子さん（38歳）</h4>
+      <ul>
+        <li>思春期からニキビに悩み、20代でクレーター化。今は毛穴開き+ニキビ跡が慢性的に残る</li>
+        <li>毎朝コンシーラーとカバーファンデで30分格闘。午後には毛穴落ちして塗り直し</li>
+        <li>「子どもに似顔絵を描いてもらうときいつもボコボコを足される」</li>
+        <li>美容皮膚科は「高い・痛い・何回も通う」イメージで踏み出せない</li>
+        <li>「マスクをとって、そのままの顔で大声で話したい」</li>
+      </ul>
+    </div>
+
+    <div class="persona-card">
+      <h4>好調動画CRから読み取れるヒットコピー</h4>
+      <ul>
+        <li>「少し赤くなってもいいから毛穴開き閉じたい女性」</li>
+        <li>「すっぴんが美しいプルツヤ肌」</li>
+        <li>「毛穴レス治療は怪しい」→ 不安から入って安心させる構成</li>
+        <li>「このブツブツ」「ファンデ塗っても」→ リアルな肌接写で共感</li>
+        <li>「韓ドル級の水光肌 目指せます」</li>
+        <li>「何しても毛穴が目立ってしまう方でも」→ セルフケアの限界暗示</li>
+        <li>「最大無料 毛穴レス治療は（クーポン適用価格）」</li>
+        <li>「0円〜」「9,800円」→ 価格訴求が強い</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== FV ==================== -->
+<div class="section" id="fv">
+  <div class="section-header">
+    <span class="badge badge-orange">FV</span>
+    <h3>ファーストビュー</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">「これは自分のことだ」と思わせて診断に引き込む。アンケートTOP1の「メイク時のペイン」で掴む</div>
+
+    <div class="copy-block">
+      <div class="copy-label">メインコピー</div>
+      ファンデを塗っても毛穴が隠れない…
+そんな毎日に うんざりしていませんか？
+    </div>
+
+    <div class="copy-block">
+      <div class="copy-label">サブコピー（日常ペインの列挙）</div>
+      「厚塗りしても午後には毛穴落ち…」
+「コンシーラーでもクレーターは埋まらない…」
+「すっぴんを見られるのが怖い…」
+    </div>
+
+    <div class="copy-block">
+      <div class="copy-label">診断誘導</div>
+      たった4問に答えるだけで
+あなたにぴったりの毛穴ケアがわかります
+    </div>
+
+    <div class="copy-block">
+      <div class="copy-label">クーポン予告</div>
+      🎁 回答いただいた方全員に ¥25,000OFF クーポンプレゼント
+    </div>
+
+    <div class="img-note">BAカルーセル（毛穴治療のビフォーアフター3枚）+ ギフトアイコン</div>
+    <div class="evidence">アンケート: 「メイク時に気になる」が全年代で最頻出。好調動画CR: 「ファンデ塗っても」「毛穴落ち」が共通キーワード</div>
+  </div>
+</div>
+
+<!-- ==================== Q1 ==================== -->
+<div class="section" id="q1">
+  <div class="section-header">
+    <span class="badge badge-orange">Q1</span>
+    <h3>悩みの自覚 —「一番気になる毛穴の悩みはどれですか？」</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">漠然とした「毛穴が気になる」に名前をつけさせる。選ぶ行為 = 「治したい」の意志表明（マイクロコミットメント）</div>
+
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">1-1 表</div>
+        <div class="text">毛穴の開き・黒ずみ</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">1-1 裏</div>
+        <div class="text">毛穴レスなつるすべ肌へ</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">1-2 表</div>
+        <div class="text">ニキビ跡・クレーター</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">1-2 裏</div>
+        <div class="text">なめらかでフラットな肌へ</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">1-3 表</div>
+        <div class="text">ファンデが毛穴落ちする</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">1-3 裏</div>
+        <div class="text">素肌からキレイが続く肌へ</div>
+      </div>
+    </div>
+
+    <div class="evidence">アンケート: 毛穴開き・クレーター・毛穴落ちが30歳以上で3大悩み。動画CR: 「毛穴開き閉じたい」「ファンデ塗っても」</div>
+    <div class="img-note">表: グレー背景・悩み顔の女性イラスト / 裏: ピンク背景・笑顔の女性イラスト</div>
+  </div>
+</div>
+
+<!-- ==================== Q2 ==================== -->
+<div class="section" id="q2">
+  <div class="section-header">
+    <span class="badge badge-orange">Q2</span>
+    <h3>現状の限界 —「今、毛穴のお悩みにどう対処していますか？」</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">今のセルフケアの限界を自覚させるが否定しない。「もっと良くなれる余地がある」と思わせて施術検討に自然に進ませる</div>
+
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">2-1 表</div>
+        <div class="text">コンシーラーやファンデで隠している</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">2-1 裏</div>
+        <div class="text">その厚塗り、もっとラクになれるかも</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">2-2 表</div>
+        <div class="text">毛穴用スキンケアを使っている</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">2-2 裏</div>
+        <div class="text">そのケア、もっと実感できるかも</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">2-3 表</div>
+        <div class="text">特に何もしていない</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">2-3 裏</div>
+        <div class="text">今が一番キレイな肌を取り戻しやすいタイミングかも</div>
+      </div>
+    </div>
+
+    <div class="evidence">アンケートTOP対処法: コンシーラー/ファンデ → ビタミンC美容液/引き締め化粧水 → 何もしていない</div>
+    <div class="img-note">表: 各対処法を実践するシーン（メイク/スキンケア/困り顔）/ 裏: 笑顔・安堵の表情</div>
+  </div>
+</div>
+
+<!-- ==================== Q3 ==================== -->
+<div class="section" id="q3">
+  <div class="section-header">
+    <span class="badge badge-orange">Q3</span>
+    <h3>不安の解消 —「毛穴治療で一番気になるポイントは？」</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">施術検討の最大の壁＝不安を言語化させ、タップ1回で即座に具体策を見せて解消する</div>
+
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">3-1 表</div>
+        <div class="text">費用が高そう・何回も通うのが不安</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">3-1 裏</div>
+        <div class="text">初回0円〜＋あなたに合うプランをご提案</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">3-2 表</div>
+        <div class="text">痛み・ダウンタイムが心配</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">3-2 裏</div>
+        <div class="text">痛みの少ないメニュー多数＋日常生活にほぼ影響なし</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">3-3 表</div>
+        <div class="text">本当にキレイになるか不安</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">3-3 裏</div>
+        <div class="text">悩みに合わせて選べる5つ以上の治療メニュー</div>
+      </div>
+    </div>
+
+    <div class="evidence">アンケート: ほぼ全員が費用・回数に言及。次いで痛み・ダウンタイム。「クレーターは治らないのでは」という効果への疑い。動画CR: 「0円〜」「ダウンタイムほぼゼロ」が好調</div>
+    <div class="img-note">表: 不安・心配顔 / 裏: 3-1, 3-2はユーザーキャラ笑顔、3-3はドクターキャラ（OKポーズ）</div>
+  </div>
+</div>
+
+<!-- ==================== Q4 ==================== -->
+<div class="section" id="q4">
+  <div class="section-header">
+    <span class="badge badge-orange">Q4</span>
+    <h3>理想の宣言 —「毛穴が気にならなくなったら、どうしたいですか？」</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">不安が消えた直後に理想像を能動的に宣言させる。欲求のピーク。自分で選んだ理想だから、クーポンが「押し付け」ではなく「望みを叶えるツール」になる</div>
+
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">4-1 表</div>
+        <div class="text">ナチュラルメイクを楽しみたい</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">4-1 裏</div>
+        <div class="text">隠すメイクから"魅せる"メイクへ ✨</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">4-2 表</div>
+        <div class="text">すっぴんに自信を持ちたい</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">4-2 裏</div>
+        <div class="text">鏡を見るたびに気分が上がる毎日へ ✨</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card card-front">
+        <div class="label">4-3 表</div>
+        <div class="text">写真をもっと楽しみたい</div>
+      </div>
+      <div class="card card-back">
+        <div class="label">4-3 裏</div>
+        <div class="text">アップでも堂々と笑える自分へ ✨</div>
+      </div>
+    </div>
+
+    <div class="evidence">アンケートTOP理想: ナチュラルメイク・すっぴん・写真。記事LP Q2にも同じ3択あり（好調実績）</div>
+
+    <h4 style="margin-top:20px;color:var(--accent);">FV ↔ Q4 ↔ 感情クライマックス 対比設計</h4>
+    <table>
+      <tr><th>FV (ネガティブ)</th><th>Q4 (理想宣言)</th><th>❾ (実現宣言)</th></tr>
+      <tr><td>ファンデを塗っても毛穴が隠れない</td><td>ナチュラルメイクを楽しみたい</td><td>もう厚塗りしなくていい。素肌で笑える毎日へ</td></tr>
+      <tr><td>すっぴんを見られるのが怖い</td><td>すっぴんに自信を持ちたい</td><td>鏡を見るたびに気分が上がる</td></tr>
+      <tr><td>写真はいつも加工</td><td>写真をもっと楽しみたい</td><td>フィルターなしで堂々とシェアできる</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== 結果パート ==================== -->
+<div class="section" id="result">
+  <div class="section-header">
+    <span class="badge badge-green">RESULT</span>
+    <h3>結果パート（クーポン提示）</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">アンケート回答の"お礼"としてクーポンを渡す。互恵性の原理で売り込み感を消す</div>
+
+    <div class="copy-block">
+      <div class="copy-label">タイトル</div>
+      アンケートのご回答ありがとうございました！
+    </div>
+    <div class="copy-block">
+      <div class="copy-label">クーポン提示</div>
+      感謝の気持ちを込めて…
+¥25,000 OFFクーポンをプレゼント！
+    </div>
+
+    <div class="img-note">BA動画（毛穴治療ビフォーアフター）</div>
+
+    <div class="copy-block">
+      <div class="copy-label">申し込み方法（簡潔に）</div>
+      ① 下のボタンからWeb予約
+② カウンセリング当日にクーポン提示
+③ あなたに合った治療プランをご提案
+    </div>
+
+    <div class="cta-block">
+      <h4>CTA① — 即決層を拾う</h4>
+      <p>ボタン文言:「空き枠を確認する」</p>
+      <p style="font-size:0.8em;color:var(--text-muted);">※「予約する」ではなくコミットメントの軽い表現</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 続きを見る ==================== -->
+<div class="section" id="more">
+  <div class="section-header">
+    <span class="badge badge-blue">MORE</span>
+    <h3>「続きを見る」以降 — まだ迷っている人の説得</h3>
+  </div>
+  <div class="section-body">
+    <div class="emotion-arc">
+      <div class="step">❶共感の再燃<br><small>ペイン再点火</small></div>
+      <div class="step arrow">→</div>
+      <div class="step">❷解決策<br><small>TCB初出し</small></div>
+      <div class="step arrow">→</div>
+      <div class="step">❸悩み別BA<br><small>Q1対応</small></div>
+      <div class="step arrow">→</div>
+      <div class="step">❹選ばれる理由<br><small>Q3裏付け</small></div>
+      <div class="step arrow">→</div>
+      <div class="step">❺社会的証明<br><small>数字で安心</small></div>
+      <div class="step arrow">→</div>
+      <div class="step">❻手順<br><small>行動簡易化</small></div>
+      <div class="step arrow">→</div>
+      <div class="step">CTA②</div>
+      <div class="step arrow">→</div>
+      <div class="step">❼FAQ<br><small>不安除去</small></div>
+      <div class="step arrow">→</div>
+      <div class="step">❽当日の流れ</div>
+      <div class="step arrow">→</div>
+      <div class="step">❾感情MAX</div>
+      <div class="step arrow">→</div>
+      <div class="step">CTA③</div>
+      <div class="step arrow">→</div>
+      <div class="step">❿緊急性</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ❶ 共感の再燃 ==================== -->
+<div class="section" id="shared1">
+  <div class="section-header">
+    <span class="badge badge-pink">❶</span>
+    <h3>共感の再燃</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">クーポンを見ても動かなかった人。日常の具体シーンを突きつけて「あ、これ私だ」を再点火する</div>
+
+    <div class="copy-block">
+      <div class="copy-label">導入コピー</div>
+      毛穴ひとつで、こんなに大変…
+    </div>
+
+    <div class="flow-step">
+      <div class="num">1</div>
+      <div>
+        <strong>朝のメイクで毛穴と格闘30分…</strong><br>
+        コンシーラー → ファンデ → パウダー。 それでも午後には毛穴落ちしてやり直し。「もう何を塗っても同じ」と思う瞬間。
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="num">2</div>
+      <div>
+        <strong>すっぴんを見られたくない毎日…</strong><br>
+        お泊まりも温泉も、最後までメイクが落とせない。朝は誰より早起きしてベースメイクを仕込む。素顔の自分に自信が持てない。
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="num">3</div>
+      <div>
+        <strong>写真に写るたびにため息…</strong><br>
+        友達の集合写真、自分だけ肌のキメが粗い気がする。アップで撮られるのが怖くて、いつもカメラから距離を取ってしまう。
+      </div>
+    </div>
+
+    <div class="img-note">各ペインに対応したイラスト3枚（❶メイク格闘 ❷鏡で落ち込む ❸写真で距離を取る女性）</div>
+    <div class="evidence">アンケート: 「メイク時」「すっぴん」「写真」がペインシーンTOP3。動画CR: 「ファンデ塗っても」「このブツブツ」</div>
+  </div>
+</div>
+
+<!-- ==================== ❷ 解決策の提示 ==================== -->
+<div class="section" id="shared2">
+  <div class="section-header">
+    <span class="badge badge-pink">❷</span>
+    <h3>解決策の提示（TCB初出し）</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">共感でペインを再燃させた直後に解決策を出す。ここでブランド名を初出し</div>
+
+    <div class="copy-block">
+      <div class="copy-label">コピー</div>
+      そんなあなたにおすすめなのが
+TCBの毛穴治療
+
+あなたの毛穴タイプに合わせた
+豊富な治療メニューをご用意しています
+    </div>
+
+    <div class="img-note">TCBロゴ + 施術イメージ写真（ハイドラジェントルなど）</div>
+  </div>
+</div>
+
+<!-- ==================== ❸ 悩み別BA ==================== -->
+<div class="section" id="shared3">
+  <div class="section-header">
+    <span class="badge badge-pink">❸</span>
+    <h3>施術の魅力 + 悩み別BA</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">Q1の悩み選択肢に対応したBAをピンポイントで見せる。「あなたの悩み→こうなる」の個別対応感</div>
+
+    <div class="copy-block">
+      <div class="copy-label">キャッチコピー</div>
+      あなたの毛穴悩みに合った治療で
+理想の肌を目指せます
+    </div>
+
+    <table>
+      <tr><th>Q1対応</th><th>BAの内容</th></tr>
+      <tr><td>毛穴の開き・黒ずみ</td><td>ハイドラジェントル等によるBA（毛穴が目立たなくなった肌）</td></tr>
+      <tr><td>ニキビ跡・クレーター</td><td>ダーマペン4 / サブシジョンによるBA（凸凹→なめらか）</td></tr>
+      <tr><td>ファンデが毛穴落ちする</td><td>サリチル酸ピーリング等によるBA（キメの整った肌）</td></tr>
+    </table>
+
+    <div class="img-note">BA素材は3枚のみ。Q1の選択肢に1対1対応。量で押さない</div>
+  </div>
+</div>
+
+<!-- ==================== ❹ 選ばれる理由 ==================== -->
+<div class="section" id="shared4">
+  <div class="section-header">
+    <span class="badge badge-pink">❹</span>
+    <h3>選ばれる理由×4</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">Q3のカードフリップで与えた「感情的な安心」を「論理的な安心」に昇格させる</div>
+
+    <div class="flow-step">
+      <div class="num">1</div>
+      <div>
+        <strong>初回0円〜で始められる</strong>（Q3-1対応: 費用不安）<br>
+        クーポン適用で初回0円〜。無理のないプランをカウンセリングでご提案
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="num">2</div>
+      <div>
+        <strong>痛みが少なく日常生活にほぼ影響なし</strong>（Q3-2対応: 痛み・DT不安）<br>
+        ハイドラジェントルやサリチル酸ピーリングは痛みほぼゼロ。施術後すぐメイク可能なメニューも
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="num">3</div>
+      <div>
+        <strong>毛穴悩みに合わせて選べる豊富なメニュー</strong>（Q3-3対応: 効果不安）<br>
+        ピーリング・ハイドラジェントル・ダーマペン4・サブシジョン・ピコレーザー。開き・黒ずみ・クレーター、あなたの悩みに合った治療を
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="num">4</div>
+      <div>
+        <strong>全国100院以上で通いやすい</strong>（保証系）<br>
+        職場や自宅の近くで見つかる。予約もWebで簡単
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ❺ 社会的証明 ==================== -->
+<div class="section" id="shared5">
+  <div class="section-header">
+    <span class="badge badge-pink">❺</span>
+    <h3>社会的証明</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">「みんなが選んでいる」で個人の決断を後押しする</div>
+
+    <table>
+      <tr><th>数字</th><th>意味</th></tr>
+      <tr><td>満足度 ○○%</td><td>施術を受けた人の高い評価（怖くない）</td></tr>
+      <tr><td>来院者数 累計○万人</td><td>規模の安心感</td></tr>
+      <tr><td>全国100院以上</td><td>通いやすさ</td></tr>
+    </table>
+
+    <div class="evidence">記事LP edu2に「満足度データ」あり（2025年7月アンケート n=2,378）。動画CRでもTCBロゴ・規模訴求あり</div>
+  </div>
+</div>
+
+<!-- ==================== ❻ 申し込み手順 ==================== -->
+<div class="section" id="shared6">
+  <div class="section-header">
+    <span class="badge badge-pink">❻</span>
+    <h3>申し込み手順</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">「やりたい」→「でもどうやるの？」で止まるのを防ぐ。3ステップで行動をゼロハードルに見せる</div>
+
+    <div class="copy-block">
+      <div class="copy-label">見出し</div>
+      カンタン60秒で予約完了
+    </div>
+
+    <div class="flow-step">
+      <div class="num">1</div>
+      <div><strong>ボタンからWeb予約</strong><br>24時間いつでもスマホで予約OK</div>
+    </div>
+    <div class="flow-step">
+      <div class="num">2</div>
+      <div><strong>来院してカウンセリング</strong><br>あなたの毛穴タイプに合った治療プランをご提案（無料）</div>
+    </div>
+    <div class="flow-step">
+      <div class="num">3</div>
+      <div><strong>施術スタート</strong><br>最短30分で完了。その日から日常生活OK</div>
+    </div>
+
+    <div class="cta-block">
+      <h4>CTA② — 納得層を拾う</h4>
+      <p>ボタン文言:「空き枠を確認する」</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ❼ FAQ ==================== -->
+<div class="section" id="faq">
+  <div class="section-header">
+    <span class="badge badge-purple">❼</span>
+    <h3>FAQ × 3</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">知識を与えるためではなく、「でも…」と足を止める理由を消すためだけに存在する。3問が上限</div>
+
+    <div class="faq-item">
+      <div class="faq-q">何回くらい通えば効果を実感できますか？</div>
+      <div class="faq-a">施術内容や毛穴の状態によって異なりますが、1回でも変化を実感される方が多くいらっしゃいます。カウンセリングであなたに合った回数プランをご提案します。</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">自分の毛穴にどの施術が合うかわかりません</div>
+      <div class="faq-a">無料カウンセリングで医師が毛穴の状態を診断し、最適なメニューをご提案します。来院してから決めていただいて大丈夫です。</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">肌が弱いのですが大丈夫ですか？</div>
+      <div class="faq-a">敏感肌の方にも対応したメニューをご用意しています。カウンセリング時に肌質を確認した上で、安心して受けられる施術をご案内します。</div>
+    </div>
+
+    <div class="evidence">アンケート: 「自分に合う治療がわからない」「敏感肌でも大丈夫か」「何回通えば」が残存不安TOP3</div>
+  </div>
+</div>
+
+<!-- ==================== ❽ 当日の流れ ==================== -->
+<div class="section" id="flow">
+  <div class="section-header">
+    <span class="badge badge-purple">❽</span>
+    <h3>当日の流れ</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">「予約した後に何が起きるか」を見せて未来を先取り体験させる。美容クリニック未経験者の潜在不安を消す</div>
+
+    <div class="flow-step">
+      <div class="num">1</div>
+      <div><strong>受付・問診票記入</strong><br>予約時間に来院。問診票に気になる毛穴のお悩みを記入</div>
+    </div>
+    <div class="flow-step">
+      <div class="num">2</div>
+      <div><strong>無料カウンセリング</strong><br>医師が毛穴の状態を確認。あなたに合った治療プランと費用を丁寧にご説明</div>
+    </div>
+    <div class="flow-step">
+      <div class="num">3</div>
+      <div><strong>施術（最短30分〜）</strong><br>メニューに応じた施術を実施。痛みの少ない施術が中心なのでリラックスして受けられます</div>
+    </div>
+    <div class="flow-step">
+      <div class="num">4</div>
+      <div><strong>帰宅 — そのまま日常生活OK</strong><br>多くのメニューは施術後すぐメイク可能。そのままお出かけもできます</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ❾ 感情のクライマックス ==================== -->
+<div class="section" id="climax">
+  <div class="section-header">
+    <span class="badge badge-red">❾</span>
+    <h3>感情のクライマックス</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">LP全体の感情的ゴール。Q4で宣言した理想が実現した状態を描写。FVのネガティブの完全な反転。理屈ではなく感情で最後の一押し</div>
+
+    <div class="copy-block" style="text-align:center;font-size:1.1em;">
+      <div class="copy-label">クライマックスコピー</div>
+      もう、毛穴を隠すために厚塗りしなくていい。
+
+ナチュラルメイクで鏡を見るたびに
+気分が上がる毎日へ。
+
+写真だって、フィルターなしで
+堂々と笑える自分へ。
+
+あなたの"なりたい"は、
+ここから始まります。
+    </div>
+
+    <div class="cta-block">
+      <h4>CTA③ — 確信層を拾う（最終CTA）</h4>
+      <p>ボタン文言:「空き枠を確認する」</p>
+      <p style="font-size:0.8em;color:var(--text-muted);">¥25,000 OFFクーポンを使う</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ❿ 緊急性 ==================== -->
+<div class="section" id="urgency">
+  <div class="section-header">
+    <span class="badge badge-red">❿</span>
+    <h3>緊急性</h3>
+  </div>
+  <div class="section-body">
+    <div class="psych-note">「あとで考えよう」で離脱する人を止める。損失回避バイアス活用</div>
+
+    <div class="copy-block" style="text-align:center;">
+      <div class="copy-label">緊急性コピー</div>
+      ⚠ このページを閉じると
+¥25,000 OFFクーポンは
+二度と表示されない場合があります
+
+毛穴が気になり始めた「今」が
+一番キレイに戻れるタイミングです
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 画像発注リスト ==================== -->
+<div class="section" id="images">
+  <div class="section-header">
+    <span class="badge badge-teal">IMAGES</span>
+    <h3>画像発注リスト</h3>
+  </div>
+  <div class="section-body">
+
+    <h4 style="margin-bottom:12px;">カードイラスト（表12枚 + 裏12枚 = 24枚）</h4>
+    <p style="font-size:0.85em;color:var(--text-muted);margin-bottom:16px;">※クマ取りLPと同じ水彩×アニメハイブリッドスタイル。角丸ボーダーの外側は#FFFFFF。</p>
+
+    <table>
+      <tr><th>ID</th><th>面</th><th>テキスト</th><th>シーン</th></tr>
+      <tr><td>1-1</td><td>表</td><td>毛穴の開き・黒ずみ</td><td>手鏡で頬の毛穴を確認する女性。困り顔</td></tr>
+      <tr><td>1-1</td><td>裏</td><td>毛穴レスなつるすべ肌へ</td><td>頬を触って微笑む女性。ツヤ肌</td></tr>
+      <tr><td>1-2</td><td>表</td><td>ニキビ跡・クレーター</td><td>指先で頬に触れ、凸凹を気にする女性</td></tr>
+      <tr><td>1-2</td><td>裏</td><td>なめらかでフラットな肌へ</td><td>安堵の表情で肌を撫でる女性</td></tr>
+      <tr><td>1-3</td><td>表</td><td>ファンデが毛穴落ちする</td><td>手鏡＋スポンジを持ち、メイク直し中。困り顔</td></tr>
+      <tr><td>1-3</td><td>裏</td><td>素肌からキレイが続く肌へ</td><td>軽やかな表情でブラシをあてる女性</td></tr>
+
+      <tr><td>2-1</td><td>表</td><td>コンシーラーやファンデで隠している</td><td>コンシーラーを顔に塗る女性。鏡を見つめる</td></tr>
+      <tr><td>2-1</td><td>裏</td><td>その厚塗り、もっとラクになれるかも</td><td>頬に手をあてて微笑む女性</td></tr>
+      <tr><td>2-2</td><td>表</td><td>毛穴用スキンケアを使っている</td><td>化粧水ボトルを手に持ち、コットンでケア中</td></tr>
+      <tr><td>2-2</td><td>裏</td><td>そのケア、もっと実感できるかも</td><td>スキンケア後、満足げに頬を触る女性</td></tr>
+      <tr><td>2-3</td><td>表</td><td>特に何もしていない</td><td>あごに手を当て、考え込む女性</td></tr>
+      <tr><td>2-3</td><td>裏</td><td>今が一番キレイな肌を取り戻しやすいタイミングかも</td><td>サムズアップで明るく微笑む女性</td></tr>
+
+      <tr><td>3-1</td><td>表</td><td>費用が高そう・何回も通うのが不安</td><td>財布を手に持ち不安げな表情の女性</td></tr>
+      <tr><td>3-1</td><td>裏</td><td>初回0円〜＋あなたに合うプランをご提案</td><td>ドクター（白衣+紺スクラブ）、安心のOKポーズ</td></tr>
+      <tr><td>3-2</td><td>表</td><td>痛み・ダウンタイムが心配</td><td>両手を胸の前で組み、祈るように心配する女性</td></tr>
+      <tr><td>3-2</td><td>裏</td><td>痛みの少ないメニュー多数＋日常生活にほぼ影響なし</td><td>メイクポーチを持ち、施術後すぐメイクOKな様子のドクター</td></tr>
+      <tr><td>3-3</td><td>表</td><td>本当にキレイになるか不安</td><td>頬杖をついて不安そうな女性</td></tr>
+      <tr><td>3-3</td><td>裏</td><td>悩みに合わせて選べる5つ以上の治療メニュー</td><td>ドクター、OKサインで自信のある笑顔</td></tr>
+
+      <tr><td>4-1</td><td>表</td><td>ナチュラルメイクを楽しみたい</td><td>メイクブラシを持ち、楽しそうにメイクする女性</td></tr>
+      <tr><td>4-1</td><td>裏</td><td>隠すメイクから"魅せる"メイクへ ✨</td><td>ドクター、サムズアップ＋キラキラ</td></tr>
+      <tr><td>4-2</td><td>表</td><td>すっぴんに自信を持ちたい</td><td>手鏡を覗き込み、希望の表情の女性</td></tr>
+      <tr><td>4-2</td><td>裏</td><td>鏡を見るたびに気分が上がる毎日へ ✨</td><td>ドクター、サムズアップ＋キラキラ</td></tr>
+      <tr><td>4-3</td><td>表</td><td>写真をもっと楽しみたい</td><td>スマホで自撮りしようとしている女性。笑顔</td></tr>
+      <tr><td>4-3</td><td>裏</td><td>アップでも堂々と笑える自分へ ✨</td><td>ドクター、サムズアップ＋キラキラ</td></tr>
+    </table>
+
+    <h4 style="margin-top:24px;margin-bottom:12px;">その他画像</h4>
+    <table>
+      <tr><th>用途</th><th>内容</th></tr>
+      <tr><td>FV BAカルーセル</td><td>毛穴治療BA × 3枚</td></tr>
+      <tr><td>❶ 共感の再燃</td><td>ペインシーンイラスト × 3枚（メイク格闘/すっぴん不安/写真NG）</td></tr>
+      <tr><td>❸ 悩み別BA</td><td>毛穴開き/クレーター/毛穴落ち BA × 3枚</td></tr>
+      <tr><td>❽ 当日の流れ</td><td>ステップイラスト or 写真 × 4枚</td></tr>
+    </table>
+
+  </div>
+</div>
+
+</div><!-- /container -->
+
+</body>
+</html>
